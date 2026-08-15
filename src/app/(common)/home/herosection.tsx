@@ -4,7 +4,7 @@ import { LiaShoppingBagSolid } from "react-icons/lia";
 
 const Herosection = () => {
   return (
-    <div className="h-full">
+    <div className="">
       <section className="relative w-full h-screen overflow-hidden">
         <video
           autoPlay

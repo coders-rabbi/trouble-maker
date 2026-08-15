@@ -3,7 +3,7 @@ import React from "react";
 
 const page = () => {
   return (
-    <div className="mt-28 h-full">
+    <div className="mt-28">
       <h1 className="font-bold text-xl md:text-2xl lg:text-3xl uppercase mb-5">
         Archives
       </h1>

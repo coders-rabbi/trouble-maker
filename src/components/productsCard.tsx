@@ -15,7 +15,7 @@ const ProductsCard = () => {
         />
         <div className="absolute bottom-0 left-0 w-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <Link
-            href="/order"
+            href="/shop/1"
             className="block bg-black py-3 w-full text-white text-center uppercase"
           >
             Order Now
@@ -26,7 +26,7 @@ const ProductsCard = () => {
         <h4 className="text-xs font-semibold">
           Spider Man Premium Dropshoulder Tee
         </h4>
-        <p className="text-xs font-semibold">৳ 660</p>
+        <p className="text-xs font-semibold text-nowrap">৳ 660</p>
       </div>
     </div>
   );
