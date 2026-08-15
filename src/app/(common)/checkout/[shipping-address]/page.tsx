@@ -322,7 +322,7 @@ const Shipping_Address = () => {
                   <button
                     type="button"
                     onClick={handleApplyPromoCode}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-sm font-semibold text-blue-600 transition-colors hover:text-blue-800"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-sm font-semibold text-black transition-colors hover:text-[#2C2D2D]"
                   >
                     Apply
                   </button>

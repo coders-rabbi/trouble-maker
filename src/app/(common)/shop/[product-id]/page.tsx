@@ -55,7 +55,7 @@ const Page = () => {
                 `/checkout/shipping_address?productId=${prpoductId}&price=${price}&count=${quantity}&size=${size}&color=${variation}`,
               );
             }}
-            className="mt-[30px] w-full rounded-md bg-blue-600 px-4 py-2.5 font-inherit text-white font-medium hover:bg-blue-700 transition-colors"
+            className="mt-[30px] w-full rounded-md bg-black px-4 py-2.5 font-inherit text-white font-medium hover:bg-[#2C2D2D] transition-colors uppercase"
           >
             procced to checkout
           </button>
