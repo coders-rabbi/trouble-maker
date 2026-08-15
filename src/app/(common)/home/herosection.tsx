@@ -13,7 +13,7 @@ const Herosection = () => {
           playsInline
           className="absolute top-0 left-0 w-full h-full object-cover"
         >
-          <source src="/videos/video.mp4" type="video/mp4" />
+          <source src="https://res.cloudinary.com/sqta1lox/video/upload/v1786791731/video.mp4" />
           Your browser isn't support the video.
         </video>
 
