@@ -1,10 +1,22 @@
+"use client";
+
 import Image from "next/image";
 import img from "@/assets/products/img2.png";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BsFillBoxSeamFill } from "react-icons/bs";
-import ProductsCard from "@/components/productsCard";
+import ProductsCard from "@/components/ui/productsCard";
+import { ArrowTurnForwardIcon } from "@hugeicons/core-free-icons";
 
-const page = () => {
+const Page = () => {
+  const router = useRouter();
+
+  const prpoductId = 1;
+  const price = 500;
+  const size = "M";
+  const quantity = 2;
+  const variation = "black";
+
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-28 px-5 max-w-4xl mx-auto">
@@ -16,8 +28,9 @@ const page = () => {
             <h1 className="text-2xl font-semibold uppercase text-wrap">
               Spider Man Premium Dropshoulder Tee
             </h1>
-            <p>৳ {""}660</p>
+            <p>৳ 660</p>
           </div>
+
           <div className="flex items-center gap-4 mt-7">
             <h2 className="text-xl font-semibold uppercase text-gray-400">
               Select Color:
@@ -25,6 +38,7 @@ const page = () => {
             <p className="h-5 w-5 bg-white border border-black rounded-full"></p>
             <p className="h-5 w-5 bg-black rounded-full"></p>
           </div>
+
           <div className="flex items-center gap-4 mt-7">
             <h2 className="text-xl font-semibold uppercase text-gray-400">
               Select Size:
@@ -34,14 +48,19 @@ const page = () => {
             <p className="bg-white border border-black py-1 px-2">XL</p>
             <p className="bg-white border border-black py-1 px-2">Xl</p>
           </div>
-          <Link
-            href=""
-            className="font-semibold uppercase bg-black text-white py-3 block text-center mt-7"
-          >
-            Procced to checkout
-          </Link>
 
-          {/* product destials section */}
+          <button
+            onClick={() => {
+              router.push(
+                `/checkout/shipping_address?productId=${prpoductId}&price=${price}&count=${quantity}&size=${size}&color=${variation}`,
+              );
+            }}
+            className="mt-[30px] w-full rounded-md bg-blue-600 px-4 py-2.5 font-inherit text-white font-medium hover:bg-blue-700 transition-colors"
+          >
+            procced to checkout
+          </button>
+
+          {/* product details section */}
           <div>
             <h3 className="uppercase text-gray-400 text-xs mt-7 flex items-center gap-4">
               <BsFillBoxSeamFill />
@@ -56,18 +75,19 @@ const page = () => {
                 naturally aged look.
               </p>
               <h3 className="text-xs text-gray-400">
-                Why Trouble Make Bnagladesh ?
+                Why Trouble Make Bangladesh?
               </h3>
               <ul className="text-xs text-gray-400">
-                <li> 450 GSM premium acid-washed cotton</li>
-                <li> 450 GSM premium acid-washed cotton</li>
-                <li> 450 GSM premium acid-washed cotton</li>
-                <li> 450 GSM premium acid-washed cotton</li>
+                <li>450 GSM premium acid-washed cotton</li>
+                <li>450 GSM premium acid-washed cotton</li>
+                <li>450 GSM premium acid-washed cotton</li>
+                <li>450 GSM premium acid-washed cotton</li>
               </ul>
             </div>
           </div>
         </div>
       </div>
+
       <div>
         <h1 className="uppercase text-gray-400 text-center mt-32">
           Complementary Pieces
@@ -82,4 +102,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

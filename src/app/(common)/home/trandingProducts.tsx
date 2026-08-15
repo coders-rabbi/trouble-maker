@@ -1,4 +1,4 @@
-import ProductsCard from "@/components/productsCard";
+import ProductsCard from "@/components/ui/productsCard";
 import React from "react";
 import { FaGripfire } from "react-icons/fa";
 
