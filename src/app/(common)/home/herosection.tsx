@@ -1,5 +1,6 @@
 import logo from "@/assets/logo.png";
 import Link from "next/link";
+import { FaEdit } from "react-icons/fa";
 import { LiaShoppingBagSolid } from "react-icons/lia";
 
 const Herosection = () => {
@@ -27,11 +28,11 @@ const Herosection = () => {
             Built for the rider. Made for the rebels
           </p>
           <Link
-            href="/shop"
+            href="/custom-order"
             className="bg-white uppercase text-black px-6 py-3 rounded-full font-semibold flex gap-1"
           >
-            Shop now
-            <LiaShoppingBagSolid className="text-xl" />
+            Custom Order{""}
+            <FaEdit className="text-xl" />
           </Link>
         </div>
       </section>

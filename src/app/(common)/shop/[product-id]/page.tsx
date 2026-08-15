@@ -39,14 +39,19 @@ const Page = () => {
             <p className="h-5 w-5 bg-black rounded-full"></p>
           </div>
 
-          <div className="flex items-center gap-4 mt-7">
-            <h2 className="text-xl font-semibold uppercase text-gray-400">
-              Select Size:
-            </h2>
-            <p className="bg-white border border-black py-1 px-2">M</p>
-            <p className="bg-white border border-black py-1 px-2">L</p>
-            <p className="bg-white border border-black py-1 px-2">XL</p>
-            <p className="bg-white border border-black py-1 px-2">Xl</p>
+          <div className="flex justify-between items-center ">
+            <div className="flex items-center gap-4 mt-7">
+              <h2 className="text-xl font-semibold uppercase text-gray-400">
+                Select Size:
+              </h2>
+              <p className="bg-white border border-black py-1 px-2">M</p>
+              <p className="bg-white border border-black py-1 px-2">L</p>
+              <p className="bg-white border border-black py-1 px-2">XL</p>
+              <p className="bg-white border border-black py-1 px-2">Xl</p>
+            </div>
+            <button className="uppercase hover:bg-black hover:rounded-full">
+              size chart
+            </button>
           </div>
 
           <button
