@@ -250,6 +250,19 @@ const Shipping_Address = () => {
             </div>
 
             <div className="mt-5">
+              <label className={fieldLabel}>
+                EMAIL (OPTIONAL)
+              </label>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="example@gmail.com"
+                className={inputClasses}
+              />
+            </div>
+
+            <div className="mt-5">
               <label className={fieldLabel}>Customisation Notes</label>
               <input
                 type="text"

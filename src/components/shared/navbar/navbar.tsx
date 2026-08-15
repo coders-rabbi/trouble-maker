@@ -28,11 +28,29 @@ function isExternalLink(href?: string) {
 const navItems: NavItem[] = [
   { label: "Home", href: "/" },
   {
-    label: "About Us",
-    href: "/about",
+    label: "T-SHIRT",
+    dropdown: [
+      { label: "All T-Shirts", href: "/all-tshirt" },
+      { label: "Oversized", href: "/oversized" },
+      { label: "Drop Shoulder", href: "/dropshulder" },
+      { label: "Racing Collection", href: "/racing" },
+      { label: "Graphic Tees", href: "/graphic-tees" },
+    ],
   },
   { label: "Contact", href: "/contact" },
-  { label: "Shop", href: "/shop" },
+  {
+    label: "Shop",
+    dropdown: [
+      { label: "ALL PRODUCTS", href: "/all-products" },
+      { label: "T-SHIRT", href: "/t-shirt" },
+      { label: "JERSEYS", href: "/jerseys" },
+      { label: "ACCESSORIES", href: "/accesseries" },
+      { label: "SALE", href: "/sale" },
+    ],
+  },
+  {
+    label: "WINTER PRODUCT",href: "winrer"
+  }
 ];
 
 /* ---------------- Desktop recursive menu item ---------------- */
@@ -42,9 +60,7 @@ function DesktopMenuItem({ item, level }: { item: NavItem; level: number }) {
   const external = isExternalLink(item.href);
 
   const topLevelClasses = `flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors ${
-    item.label === "Home"
-      ? "text-[#FFBC01]"
-      : "text-gray-600 hover:text-[#4A1942]"
+    item.label === "Home" ? "text-black" : "text-black hover:text-[#4A1942]"
   }`;
   const nestedClasses =
     "flex w-full items-center justify-between gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#4A1942]";
@@ -217,7 +233,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-4 z-50 rounded-2xl bg-gray-400 shadow-lg transition-all duration-300 sm:inset-x-7 ${
+      className={`inset-x-4 z-50 bg-white shadow-lg transition-all duration-300 sm:inset-x-7 ${
         scrolled ? "top-0" : "top-5 sm:top-7"
       }`}
     >
@@ -263,7 +279,7 @@ export default function Navbar() {
           mobileOpen ? "max-h-[80vh] overflow-y-auto" : "max-h-0"
         }`}
       >
-        <ul className="flex flex-col gap-1 border-t border-gray-100 px-4 py-3">
+        <ul className="flex flex-col gap-1 border-t border-black px-4 py-3">
           {navItems.map((item, i) => (
             <li key={`${item.label}-${i}`}>
               <MobileMenuItem
