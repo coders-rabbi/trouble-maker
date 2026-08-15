@@ -1,164 +1,101 @@
 "use client";
 
-import Ordersummary from "@/components/ui/orderSummary";
 import { useSearchParams, useRouter } from "next/navigation";
-import { FormEvent, useState, useEffect } from "react";
-// import Swal from "sweetalert2";
-const VALID_PROMOS = ["SAVE10", "FLAME10", "NOBITA10"];
+import { FormEvent, useState } from "react";
+import { FaMobileRetro, FaRegCopy, FaCheck } from "react-icons/fa6";
+import { FaShieldAlt, FaWhatsapp } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
+import Inventory from "@/components/ui/Inventory";
 
-/* Simple inline arrow icon, replaces @mui/icons-material/ArrowForward */
-const ArrowForwardIcon = ({ className = "" }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={`w-5 h-5 ${className}`}
-  >
-    <path d="M5 12h14" />
-    <path d="M12 5l7 7-7 7" />
-  </svg>
+/* ---------- static config ---------- */
+
+const BKASH_NUMBER = "01974004221";
+const ADVANCE_PAYMENT = 250;
+
+const DELIVERY_ZONES = [
+  { id: "inside", label: "Inside Dhaka", charge: 80 },
+  { id: "outside", label: "Outside Dhaka", charge: 150 },
+] as const;
+
+type DeliveryZoneId = (typeof DELIVERY_ZONES)[number]["id"];
+
+const GIFT_EXTRAS = [
+  {
+    id: "gift-packaging",
+    emoji: "🎁",
+    title: "Premium Gift Packaging",
+    badge: "BESTSELLER",
+    description: "Luxury matte-black box, gold-foil seal, satin ribbon",
+    price: 100,
+  },
+  {
+    id: "rose-bouquet",
+    emoji: "🌹",
+    title: "Rose Bouquet + Wish Letter",
+    badge: "ROMANTIC",
+    description: "Hand-tied fresh roses & a personally printed note",
+    price: 80,
+  },
+] as const;
+
+/* ---------- reusable bits ---------- */
+
+const inputClasses =
+  "w-full border-b border-gray-300 bg-transparent py-2 text-[15px] outline-none transition-colors placeholder:text-gray-400 focus:border-black";
+
+const fieldLabel =
+  "mb-1 block text-[11px] font-semibold tracking-wide text-gray-400 uppercase";
+
+const StepBadge = ({ n }: { n: number }) => (
+  <span className="mr-2.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
+    {n}
+  </span>
 );
 
-/* Reusable Tailwind text field, replaces MUI TextField */
-const inputClasses =
-  "w-full rounded-[10px] border border-gray-300 bg-white px-3.5 py-[9.6px] text-sm outline-none transition-colors focus:border-blue-600 focus:ring-1 focus:ring-blue-600";
+/* ---------- page ---------- */
 
 const Shipping_Address = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  const [promoCode, setPromoCode] = useState<string | null>(null);
-  const [promoCodeInput, setPromoCodeInput] = useState("");
-  const [isPromoValid, setIsPromoValid] = useState(false);
-  const [selectedThana, setSelectedThana] = useState("");
 
   const productId = searchParams.get("productId");
   const price = Number(searchParams.get("price") || 0);
   const count = Number(searchParams.get("count") || 1);
   const size = searchParams.get("size") || "";
 
-  const product = {
-    productId,
-    size,
-  };
+  const product = { productId, size };
+
+  const [deliveryZone, setDeliveryZone] = useState<DeliveryZoneId>("outside");
+  const [selectedExtras, setSelectedExtras] = useState<Set<string>>(new Set());
+  const [copied, setCopied] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
+
+  const deliveryCharge =
+    DELIVERY_ZONES.find((z) => z.id === deliveryZone)?.charge ?? 0;
+
+  const extrasTotal = GIFT_EXTRAS.filter((g) =>
+    selectedExtras.has(g.id),
+  ).reduce((sum, g) => sum + g.price, 0);
 
   const subtotal = price * count;
+  const total = subtotal + deliveryCharge + extrasTotal;
 
-  const Dhaka_Sub_Area = [
-    { value: "Savar", label: "Savar" },
-    { value: "Narayanganj", label: "Narayanganj" },
-    { value: "Keranigonj", label: "Keranigonj" },
-    { value: "Dohar", label: "Dohar" },
-    { value: "Nobabganj", label: "Nobabganj" },
-    { value: "Ashuliya", label: "Ashuliya" },
-    { value: "Tongi", label: "Tongi" },
-    { value: "Gazipur", label: "Gazipur" },
-  ];
-
-  const Dhaka = [
-    { value: "Adabor", label: "Adabor" },
-    { value: "Badda", label: "Badda" },
-    { value: "Banani", label: "Banani" },
-    { value: "Bangshal", label: "Bangshal" },
-    { value: "Bimanbandar", label: "Bimanbandar" },
-    { value: "Bsahantek", label: "Bsahantek" },
-    { value: "Cantonment", label: "Cantonment" },
-    { value: "Chalkbazar", label: "Chalkbazar" },
-    { value: "Dakhin Khan", label: "Dakhin Khan" },
-    { value: "Darus-Salam", label: "Darus-Salam" },
-    { value: "Demra", label: "Demra" },
-    { value: "Dhanmondi", label: "Dhanmondi" },
-    { value: "Gandaria", label: "Gandaria" },
-    { value: "Gulshan", label: "Gulshan" },
-    { value: "Hazaribag", label: "Hazaribag" },
-    { value: "Jattrabari", label: "Jattrabari" },
-    { value: "Kafrul", label: "Kafrul" },
-    { value: "Kalabagan", label: "Kalabagan" },
-    { value: "Kamrangirchar", label: "Kamrangirchar" },
-    { value: "Khilgaon", label: "Khilgaon" },
-    { value: "Khilkhet", label: "Khilkhet" },
-    { value: "Kodomtali", label: "Kodomtali" },
-    { value: "Kotwali", label: "Kotwali" },
-    { value: "Lalbagh", label: "Lalbagh" },
-    { value: "Mirpur Model", label: "Mirpur Model" },
-    { value: "Mohammadpur", label: "Mohammadpur" },
-    { value: "Motijheel", label: "Motijheel" },
-    { value: "Mugda", label: "Mugda" },
-    { value: "New Market", label: "New Market" },
-    { value: "Pallabi", label: "Pallabi" },
-    { value: "Paltan", label: "Paltan" },
-    { value: "Ramna Model", label: "Ramna Model" },
-    { value: "Ramna", label: "Ramna" },
-    { value: "Rampura", label: "Rampura" },
-    { value: "Rupnagar", label: "Rupnagar" },
-    { value: "Sabujbag", label: "Sabujbag" },
-    { value: "Shah Ali", label: "Shah Ali" },
-    { value: "Shahbag", label: "Shahbag" },
-    { value: "Shahjahanpur", label: "Shahjahanpur" },
-    { value: "Sutrapur", label: "Sutrapur" },
-    { value: "Shyampur", label: "Shyampur" },
-    { value: "Sher-e-Bangla Nagar", label: "Sher-e-Bangla Nagar" },
-    { value: "Tejgaon Industrial Police", label: "Tejgaon Industrial Police" },
-    { value: "Tejgaon", label: "Tejgaon" },
-    { value: "Turag", label: "Turag" },
-    { value: "Uttara East", label: "Uttara East" },
-    { value: "Uttara West", label: "Uttara West" },
-    { value: "Uttar Khan", label: "Uttar Khan" },
-    { value: "Vatara", label: "Vatara" },
-    { value: "Wari", label: "Wari" },
-  ];
-
-  const getDeliveryCharge = (thanaName: string) => {
-    if (!thanaName) return 90;
-
-    const formatted = thanaName.trim().toLowerCase();
-
-    const isDhaka = Dhaka.some((d) => d.value.toLowerCase() === formatted);
-    if (isDhaka) return 50;
-
-    const isSub = Dhaka_Sub_Area.some(
-      (d) => d.value.toLowerCase() === formatted,
-    );
-    if (isSub) return 70;
-
-    return 90;
+  const toggleExtra = (id: string) => {
+    setSelectedExtras((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   };
 
-  const deliveryCharge = getDeliveryCharge(selectedThana);
-  const couponDiscount = isPromoValid ? subtotal * 0.1 : 0;
-
-  const pricing = {
-    quantity: count,
-    subtotal,
-    deliveryCharge,
-    couponDiscount,
-    total: subtotal + deliveryCharge - couponDiscount,
-  };
-
-  const handleApplyPromoCode = () => {
-    const formatted = promoCodeInput.trim().toUpperCase();
-
-    // if (VALID_PROMOS.includes(formatted)) {
-    //   setPromoCode(formatted);
-    //   setIsPromoValid(true);
-
-    //   Swal.fire({
-    //     icon: "success",
-    //     title: "Promo Applied",
-    //   });
-    // } else {
-    //   setPromoCode(null);
-    //   setIsPromoValid(false);
-
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Invalid Code",
-    //   });
-    // }
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(BKASH_NUMBER);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard not available */
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -167,179 +104,358 @@ const Shipping_Address = () => {
     const form = e.currentTarget as any;
 
     const formData = {
-      name: form.name.value,
-      phone: form.phone.value,
+      firstName: form.firstName.value,
+      lastName: form.lastName.value,
       address: form.address.value,
-      thana: form.thana.value,
-      district: form.district.value,
+      city: form.city.value,
+      phone: form.phone.value,
+      alternativePhone: form.alternativePhone.value,
+      notes: form.notes.value,
     };
 
     const orderData = {
-      customer: `flame2026-${formData.phone}`,
       product,
-      pricing,
       shipping_address: formData,
-      paymentMethod: "cash on delivery",
+      deliveryZone,
+      extras: Array.from(selectedExtras),
+      transactionId,
+      pricing: {
+        quantity: count,
+        subtotal,
+        deliveryCharge,
+        extrasTotal,
+        total,
+      },
+      paymentMethod: "bKash / Nagad / Rocket (advance)",
       orderStatus: "Pending",
-      appliedPromo: promoCode,
     };
 
-    //     try {
-    //     //   const data = await createOrder(orderData);
-
-    //     //   if () {
-    //     //     /* PURCHASE EVENT */
-
-    //     //     Swal.fire({
-    //     //       icon: "success",
-    //     //       title: "আপনার অর্ডার সফল হয়েছে",
-    //     //     });
-
-    //     //     router.push("/");
-    //     //   }
-    //     // } catch (err: any) {
-    //     //   Swal.fire({
-    //     //     icon: "error",
-    //     //     title: "Failed",
-    //     //     text: err?.message || "Something went wrong",
-    //     //   });
-    //     // }
-    // };
+    // TODO: wire up createOrder(orderData) + navigation once backend is ready
+    console.log(orderData);
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 mt-32">
-      <form onSubmit={handleSubmit} className="mt-16">
-        <div className="flex flex-wrap justify-center gap-6">
-          {/* LEFT COLUMN */}
+    <div className="mx-auto max-w-6xl px-4 py-8 mt-28">
+      {/* HEADER */}
+      <div className="mb-8 flex items-center justify-between">
+        <p className="text-sm font-bold tracking-wide">
+          CHECKOUT{" "}
+          <span className="ml-1 font-normal text-gray-400">
+            — {count} item{count > 1 ? "s" : ""}
+          </span>
+        </p>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Close checkout"
+          className="text-gray-500 transition-colors hover:text-black"
+        >
+          <IoClose size={22} />
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div className="flex flex-wrap gap-10">
+          {/* ============ LEFT COLUMN ============ */}
           <div className="w-full md:w-[54%]">
-            <div className="mt-4 mb-2 rounded-2xl p-6 shadow">
-              <h1 className="mb-1 text-2xl font-semibold">CheckOut Page</h1>
-              <p className="leading-relaxed">
-                Provide your accurate address for product delivery. We will take
-                care of bringing it to you.
-              </p>
+            {/* STEP 1 — SHIPPING DETAILS */}
+            <div className="flex items-center">
+              <StepBadge n={1} />
+              <h2 className="text-sm font-bold tracking-wide">
+                SHIPPING DETAILS
+              </h2>
             </div>
 
-            {/* FORM START */}
-            <div className="rounded-2xl p-6 shadow">
-              <h2 className="mb-6 text-lg font-semibold">
-                Enter Your Shipping Details
-              </h2>
-
-              <div className="flex items-center justify-center gap-4">
-                <div className="flex-1">
-                  <label className="mb-1 block text-sm font-semibold">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    placeholder="Enter Name"
-                    className={inputClasses}
-                  />
-                </div>
-
-                <div className="flex-1">
-                  <label className="mb-1 block text-sm font-semibold">
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    name="phone"
-                    required
-                    placeholder="Enter Phone Number"
-                    className={inputClasses}
-                  />
-                </div>
-              </div>
-
-              <div className="mt-5">
-                <label className="mb-1 block text-sm font-semibold">
-                  Address
-                </label>
+            <div className="mt-6 flex gap-5">
+              <div className="flex-1">
+                <label className={fieldLabel}>First Name</label>
                 <input
                   type="text"
-                  name="address"
+                  name="firstName"
                   required
-                  placeholder="Enter Your Address"
+                  placeholder="First Name"
                   className={inputClasses}
                 />
               </div>
-
-              <div className="mt-5 flex items-center justify-center gap-4">
-                <div className="flex-1">
-                  <label className="mb-1 block text-sm font-semibold">
-                    Thana
-                  </label>
-                  <input
-                    type="text"
-                    name="Upazila"
-                    required
-                    placeholder="Enter Your Upazila"
-                    value={selectedThana}
-                    onChange={(e) => setSelectedThana(e.target.value)}
-                    className={inputClasses}
-                  />
-                </div>
-
-                <div className="flex-1">
-                  <label className="mb-1 block text-sm font-semibold">
-                    District
-                  </label>
-                  <input
-                    type="text"
-                    name="district"
-                    required
-                    placeholder="Enter Distrcit"
-                    className={inputClasses}
-                  />
-                </div>
+              <div className="flex-1">
+                <label className={fieldLabel}>Last Name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  required
+                  placeholder="Last Name"
+                  className={inputClasses}
+                />
               </div>
             </div>
-          </div>
 
-          {/* RIGHT COLUMN */}
-          <div className="mt-4 w-full md:w-[40%]">
-            <Ordersummary
-              price={price}
-              count={count}
-              couponDiscount={couponDiscount}
-              deliveryCharge={deliveryCharge}
-            />
+            <div className="mt-5">
+              <label className={fieldLabel}>Street Address</label>
+              <input
+                type="text"
+                name="address"
+                required
+                placeholder="House No, Road, Area"
+                className={inputClasses}
+              />
+            </div>
 
-            <div className="mt-2 rounded-2xl px-4 py-4 shadow">
-              <div className="mb-3">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Promo Code"
-                    value={promoCodeInput}
-                    onChange={(e) => setPromoCodeInput(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2 pr-16 text-sm outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                  />
+            <div className="mt-5">
+              <label className={fieldLabel}>City</label>
+              <input
+                type="text"
+                name="city"
+                required
+                placeholder="City / District"
+                className={inputClasses}
+              />
+            </div>
+
+            <div className="mt-5 flex flex-col gap-1.5 rounded-2xl bg-blue-50 p-4">
+              <p className="flex items-center gap-1.5 text-xs font-bold text-blue-900">
+                <FaMobileRetro />
+                *Phone Number Instructions:*
+              </p>
+              <p className="text-xs leading-relaxed text-blue-900">
+                Your primary number and alternative number must be different.
+                Your primary number should be whatsapp number so we can send
+                confirmation details & The alternative number should belong to
+                someone who can receive delivery calls on your behalf if you are
+                unreachable.
+              </p>
+            </div>
+
+            <div className="mt-5">
+              <label className={fieldLabel}>Phone</label>
+              <input
+                type="tel"
+                name="phone"
+                required
+                placeholder="01XXXXXXXXX"
+                className={inputClasses}
+              />
+            </div>
+
+            <div className="mt-5">
+              <label className={fieldLabel}>
+                Alternative Number (Mandatory)
+              </label>
+              <input
+                type="tel"
+                name="alternativePhone"
+                required
+                placeholder="01XXXXXXXXX"
+                className={inputClasses}
+              />
+            </div>
+
+            <div className="mt-5">
+              <label className={fieldLabel}>Customisation Notes</label>
+              <input
+                type="text"
+                name="notes"
+                placeholder="Any custom details..."
+                className={inputClasses}
+              />
+            </div>
+
+            {/* STEP 2 — DELIVERY ZONE */}
+            <div className="mt-10 flex items-center">
+              <StepBadge n={2} />
+              <h2 className="text-sm font-bold tracking-wide">DELIVERY ZONE</h2>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-4">
+              {DELIVERY_ZONES.map((zone) => {
+                const active = deliveryZone === zone.id;
+                return (
                   <button
+                    key={zone.id}
                     type="button"
-                    onClick={handleApplyPromoCode}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-sm font-semibold text-black transition-colors hover:text-[#2C2D2D]"
+                    onClick={() => setDeliveryZone(zone.id)}
+                    className={`rounded-xl border p-4 text-left transition-colors ${
+                      active
+                        ? "border-black bg-black text-white"
+                        : "border-gray-200 bg-white text-black hover:border-gray-400"
+                    }`}
                   >
-                    Apply
+                    <p
+                      className={`text-[11px] font-semibold uppercase tracking-wide ${
+                        active ? "text-gray-300" : "text-gray-400"
+                      }`}
+                    >
+                      {zone.id}
+                    </p>
+                    <p className="mt-1 text-sm font-bold uppercase">
+                      {zone.label}
+                    </p>
+                    <p
+                      className={`mt-1 text-sm ${active ? "text-gray-200" : "text-gray-500"}`}
+                    >
+                      ৳{zone.charge}
+                    </p>
                   </button>
-                </div>
-              </div>
+                );
+              })}
+            </div>
 
-              <h3 className="mb-0.5 text-lg font-semibold">Payment Method</h3>
-              <p className="leading-relaxed">Cash On Delivery</p>
+            {/* STEP 3 — GIFT & PREMIUM EXTRAS */}
+            <div className="mt-10 flex items-center">
+              <StepBadge n={3} />
+              <div>
+                <h2 className="text-sm font-bold tracking-wide">
+                  GIFT & PREMIUM EXTRAS
+                </h2>
+                <p className="text-xs text-gray-400">
+                  Make someone feel extraordinary
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3">
+              {GIFT_EXTRAS.map((extra) => {
+                const active = selectedExtras.has(extra.id);
+                return (
+                  <button
+                    key={extra.id}
+                    type="button"
+                    onClick={() => toggleExtra(extra.id)}
+                    className={`flex items-center gap-4 rounded-xl border p-4 text-left transition-colors ${
+                      active
+                        ? "border-black"
+                        : "border-gray-200 hover:border-gray-400"
+                    }`}
+                  >
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xl">
+                      {extra.emoji}
+                    </span>
+
+                    <span className="flex-1">
+                      <span className="flex items-center gap-2">
+                        <span className="text-sm font-bold">{extra.title}</span>
+                        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">
+                          {extra.badge}
+                        </span>
+                      </span>
+                      <span className="mt-0.5 block text-xs text-gray-400">
+                        {extra.description}
+                      </span>
+                    </span>
+
+                    <span className="shrink-0 text-sm font-bold">
+                      +৳{extra.price}
+                    </span>
+
+                    <span
+                      className={`ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+                        active
+                          ? "border-black bg-black text-white"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      {active && <FaCheck size={10} />}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* STEP 4 — PAYMENT */}
+            <div className="mt-10 flex items-center">
+              <StepBadge n={4} />
+              <h2 className="text-sm font-bold tracking-wide">PAYMENT</h2>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4">
+              <p className="text-xs font-bold text-red-600">
+                *Advance payment of ৳{ADVANCE_PAYMENT} is required to confirm
+                your order.*
+              </p>
+              <p className="mt-2 text-xs font-bold text-red-600">
+                Send Money via *bKash / Nagad / Rocket* to +{BKASH_NUMBER}*.
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-red-500">
+                Orders without advance payment will not be confirmed. Please
+                provide the correct payment details and TRX ID. Fake or
+                incorrect information will result in order cancellation.
+              </p>
+
+              <hr className="my-3 border-red-200" />
+
+              <p className="text-xs font-bold text-red-600">
+                *Please verify your size before confirmation.*
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-red-500">
+                Exchange is available only for *non-printed products* with the
+                original tag intact and the product in unused condition.
+              </p>
+            </div>
+
+            <div className="mt-5 flex items-center justify-between rounded-xl bg-gray-100 px-4 py-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  Send to (bKash / Nagad / Rocket)
+                </p>
+                <p className="mt-0.5 text-lg font-bold">{BKASH_NUMBER}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCopy}
+                aria-label="Copy number"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:border-black hover:text-black"
+              >
+                {copied ? <FaCheck size={14} /> : <FaRegCopy size={14} />}
+              </button>
+            </div>
+
+            <div className="mt-5">
+              <label className={fieldLabel}>
+                Transaction ID / Last 4 Digits
+              </label>
+              <input
+                type="text"
+                name="transactionId"
+                required
+                value={transactionId}
+                onChange={(e) => setTransactionId(e.target.value)}
+                placeholder="e.g. 8821 or TXN123456"
+                className={inputClasses}
+              />
             </div>
 
             <button
               type="submit"
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-md bg-black px-4 py-2.5 font-medium text-white transition-colors hover:bg-[#2C2D2D]"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-black px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#2C2D2D]"
             >
-              Confirm Your Order
-              <ArrowForwardIcon />
+              <FaShieldAlt size={13} />
+              Confirm Order
             </button>
+
+            <a
+              href={`https://wa.me/880${BKASH_NUMBER.slice(1)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-3 text-sm font-bold uppercase tracking-wide text-black transition-colors hover:border-black"
+            >
+              <FaWhatsapp size={15} />
+              Order via WhatsApp
+            </a>
+          </div>
+
+          {/* ============ RIGHT COLUMN ============ */}
+          <div className="w-full md:w-[36%]">
+            <div className="sticky top-8">
+              <Inventory
+                name="Turkish Horse"
+                size={size || "M"}
+                color="#000000"
+                price={price}
+                count={count}
+                deliveryCharge={deliveryCharge}
+                extrasTotal={extrasTotal}
+                total={total}
+              />
+            </div>
           </div>
         </div>
       </form>
