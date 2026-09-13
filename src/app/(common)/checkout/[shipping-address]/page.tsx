@@ -6,6 +6,10 @@ import { FaMobileRetro, FaRegCopy, FaCheck } from "react-icons/fa6";
 import { FaShieldAlt, FaWhatsapp } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import Inventory from "@/components/ui/Inventory";
+import { IOrder } from "@/types/order";
+import { createOrder } from "@/services/order/order";
+import Swal from "sweetalert2";
+import Link from "next/link";
 
 /* ---------- static config ---------- */
 
@@ -73,9 +77,11 @@ const Shipping_Address = () => {
   const deliveryCharge =
     DELIVERY_ZONES.find((z) => z.id === deliveryZone)?.charge ?? 0;
 
-  const extrasTotal = GIFT_EXTRAS.filter((g) =>
+  const selectedExtraItems = GIFT_EXTRAS.filter((g) =>
     selectedExtras.has(g.id),
-  ).reduce((sum, g) => sum + g.price, 0);
+  );
+
+  const extrasTotal = selectedExtraItems.reduce((sum, g) => sum + g.price, 0);
 
   const subtotal = price * count;
   const total = subtotal + deliveryCharge + extrasTotal;
@@ -102,7 +108,6 @@ const Shipping_Address = () => {
     e.preventDefault();
 
     const form = e.currentTarget as any;
-
     const formData = {
       firstName: form.firstName.value,
       lastName: form.lastName.value,
@@ -110,10 +115,11 @@ const Shipping_Address = () => {
       city: form.city.value,
       phone: form.phone.value,
       alternativePhone: form.alternativePhone.value,
+      email: form.email?.value,
       notes: form.notes.value,
     };
 
-    const orderData = {
+    const orderData: IOrder = {
       product,
       shipping_address: formData,
       deliveryZone,
@@ -129,13 +135,27 @@ const Shipping_Address = () => {
       paymentMethod: "bKash / Nagad / Rocket (advance)",
       orderStatus: "Pending",
     };
-
-    // TODO: wire up createOrder(orderData) + navigation once backend is ready
     console.log(orderData);
+    try {
+      const response = await createOrder(orderData);
+      if (response?.insertedId) {
+        Swal.fire({
+          icon: "success",
+          title: "আপনার অর্ডার সফল হয়েছে",
+        });
+      }
+    } catch (error: any) {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: "দুঃখিত!",
+        text: error?.message || "অর্ডার করতে সমস্যা হয়েছে, আবার চেষ্টা করুন।",
+      });
+    }
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 mt-28">
+    <div className="mx-auto max-w-6xl px-4 py-8">
       {/* HEADER */}
       <div className="mb-8 flex items-center justify-between">
         <p className="text-sm font-bold tracking-wide">
@@ -155,9 +175,9 @@ const Shipping_Address = () => {
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="flex flex-wrap gap-10">
+        <div className="grid md:grid-cols-2 gap-10">
           {/* ============ LEFT COLUMN ============ */}
-          <div className="w-full md:w-[54%]">
+          <div className="w-full">
             {/* STEP 1 — SHIPPING DETAILS */}
             <div className="flex items-center">
               <StepBadge n={1} />
@@ -250,9 +270,7 @@ const Shipping_Address = () => {
             </div>
 
             <div className="mt-5">
-              <label className={fieldLabel}>
-                EMAIL (OPTIONAL)
-              </label>
+              <label className={fieldLabel}>EMAIL (OPTIONAL)</label>
               <input
                 type="email"
                 name="email"
@@ -435,28 +453,10 @@ const Shipping_Address = () => {
                 className={inputClasses}
               />
             </div>
-
-            <button
-              type="submit"
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-black px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#2C2D2D]"
-            >
-              <FaShieldAlt size={13} />
-              Confirm Order
-            </button>
-
-            <a
-              href={`https://wa.me/880${BKASH_NUMBER.slice(1)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-3 text-sm font-bold uppercase tracking-wide text-black transition-colors hover:border-black"
-            >
-              <FaWhatsapp size={15} />
-              Order via WhatsApp
-            </a>
           </div>
 
           {/* ============ RIGHT COLUMN ============ */}
-          <div className="w-full md:w-[36%]">
+          <div className="w-full ">
             <div className="sticky top-8">
               <Inventory
                 name="Turkish Horse"
@@ -466,9 +466,30 @@ const Shipping_Address = () => {
                 count={count}
                 deliveryCharge={deliveryCharge}
                 extrasTotal={extrasTotal}
+                extras={selectedExtraItems}
                 total={total}
               />
             </div>
+          </div>
+
+          <div className="w-full">
+            <button
+              type="submit"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-black px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#2C2D2D]"
+            >
+              <FaShieldAlt size={13} />
+              Confirm Order
+            </button>
+
+            <Link
+              href={`https://wa.me/880${BKASH_NUMBER.slice(1)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-3 text-sm font-bold uppercase tracking-wide text-black transition-colors hover:border-black"
+            >
+              <FaWhatsapp size={15} />
+              Order via WhatsApp
+            </Link>
           </div>
         </div>
       </form>

@@ -1,10 +1,7 @@
+import HomeSkeleton from "./components/homeSkeleton";
 
 const loading = () => {
-    return (
-        <div>
-            Loadin....
-        </div>
-    );
+  return <HomeSkeleton />;
 };
 
 export default loading;

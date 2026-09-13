@@ -19,7 +19,7 @@ export function ReviewCarousel() {
       opts={{
         align: "start",
       }}
-      className="w-full mt-10"
+      className="w-full mt-10 relative"
     >
       <CarouselContent className="-ml-4">
         {Array.from({ length: 5 }).map((_, index) => (
@@ -57,8 +57,12 @@ export function ReviewCarousel() {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
+
+      {/* নেভিগেশন বাটনগুলোর পজিশন পরিবর্তন */}
+      <div className="flex justify-end gap-2 mt-4">
+        <CarouselPrevious className="static translate-y-0" />
+        <CarouselNext className="static translate-y-0" />
+      </div>
     </Carousel>
   );
 }
