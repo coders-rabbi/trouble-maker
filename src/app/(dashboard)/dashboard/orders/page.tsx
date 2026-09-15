@@ -44,6 +44,8 @@ const OrdersPage = () => {
     load();
   }, []);
 
+  console.log("Rabbi:", orders);
+
   const counts = useMemo(() => {
     const base: Record<string, number> = { All: orders.length };
     ORDER_STATUSES.forEach((s) => {

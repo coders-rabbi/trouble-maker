@@ -24,11 +24,9 @@ import {
   Cell,
 } from "recharts";
 import { getAllProducts } from "@/services/products";
-import { AdminOrder } from "./orders/components/orderTable";
+import { AdminOrder, StatusBadge } from "./orders/components/orderTable";
 import { IProduct } from "@/types/products";
 import { getAllOrders } from "@/services/order";
-
-/* ---------- config ---------- */
 
 const STATUS_COLORS: Record<string, string> = {
   Pending: "#D97706",
@@ -47,8 +45,6 @@ const formatDate = (iso: string) =>
     month: "short",
     year: "numeric",
   });
-
-/* ---------- small bits ---------- */
 
 const KpiCard = ({
   label,
@@ -89,13 +85,12 @@ const KpiCard = ({
   );
 };
 
-/* ---------- page ---------- */
-
 const DashboardOverviewPage = () => {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [products, setProducts] = useState<IProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  console.log("Order:", orders);
 
   useEffect(() => {
     const load = async () => {
@@ -325,7 +320,7 @@ const DashboardOverviewPage = () => {
                   width={50}
                 />
                 <Tooltip
-                  formatter={(value: number) => [`৳${value}`, "Revenue"]}
+                  formatter={(value) => [`৳${Number(value) || 0}`, "Revenue"]}
                   contentStyle={{
                     borderRadius: 8,
                     border: "1px solid #E5E7EB",

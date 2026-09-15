@@ -1,4 +1,4 @@
-import { CreateOrderResponse, IOrder } from "@/types/order";
+import { ApiResponse, CreateOrderResponse, IOrder } from "@/types/order";
 import { apiClient } from "../apiClient";
 
 export const createOrder = async (
@@ -10,16 +10,27 @@ export const createOrder = async (
   });
 };
 
-export const getAllOrders = async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`);
-  return res.json();
+export const getAllOrders = async (): Promise<IOrder[]> => {
+  const res = await apiClient<ApiResponse<IOrder[]>>("/orders", {
+    method: "GET",
+  });
+  return res.data;
 };
 
-export const updateOrderStatus = async (id: string, status: string) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${id}`, {
+export const getOrderHistory = async (): Promise<IOrder[]> => {
+  const res = await apiClient<ApiResponse<IOrder[]>>("/orders/history", {
+    method: "GET",
+  });
+  return res.data;
+};
+
+export const updateOrderStatus = async (
+  id: string,
+  status: string,
+): Promise<IOrder> => {
+  const res = await apiClient<ApiResponse<IOrder>>(`/orders/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ orderStatus: status }),
   });
-  return res.json();
+  return res.data;
 };

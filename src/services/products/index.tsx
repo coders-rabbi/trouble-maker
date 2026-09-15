@@ -1,46 +1,62 @@
-import { IProduct } from "@/types/products";
+
+import { ApiResponse, IProduct } from "@/types/order";
 import { apiClient } from "../apiClient";
 
+// export const createProduct = async (
+//   productData: IProduct,
+// ): Promise<CreateProductResponse> => {
+//   return apiClient<CreateProductResponse>("/products/create-product", {
+//     method: "POST",
+//     body: JSON.stringify(productData),
+//   });
+// };
 
 export const getAllProducts = async (): Promise<IProduct[]> => {
-  return apiClient<IProduct[]>("/products", {
+  const res = await apiClient<ApiResponse<IProduct[]>>("/products", {
     method: "GET",
   });
+  return res.data;
 };
 
-export const getProductById = async (id: string): Promise<IProduct> => {
-  return apiClient<IProduct>(`/products/${id}`, {
+export const getSingleProduct = async (id: string): Promise<IProduct> => {
+  const res = await apiClient<ApiResponse<IProduct>>(`/products/${id}`, {
     method: "GET",
   });
+  return res.data;
 };
 
-export const createProduct = async (
-  payload: FormData | Omit<IProduct, "_id">,
-): Promise<IProduct> => {
-  const isFormData = payload instanceof FormData;
+export const searchProducts = async (query: string): Promise<IProduct[]> => {
+  const res = await apiClient<ApiResponse<IProduct[]>>(
+    `/products/search?q=${encodeURIComponent(query)}`,
+    { method: "GET" },
+  );
+  return res.data;
+};
 
-  return apiClient<IProduct>("/products", {
-    method: "POST",
-    body: isFormData ? payload : JSON.stringify(payload),
-  });
+export const getProductsByCategory = async (
+  category: string,
+): Promise<IProduct[]> => {
+  const res = await apiClient<ApiResponse<IProduct[]>>(
+    `/products/category/${encodeURIComponent(category)}`,
+    { method: "GET" },
+  );
+  return res.data;
 };
 
 export const updateProduct = async (
   id: string,
-  payload: FormData | Partial<IProduct>,
+  productData: Partial<IProduct>,
 ): Promise<IProduct> => {
-  const isFormData = payload instanceof FormData;
-
-  return apiClient<IProduct>(`/products/${id}`, {
+  const res = await apiClient<ApiResponse<IProduct>>(`/products/${id}`, {
     method: "PATCH",
-    body: isFormData ? payload : JSON.stringify(payload),
+    body: JSON.stringify(productData),
   });
+  return res.data;
 };
 
-export const deleteProduct = async (
-  id: string,
-): Promise<{ message: string }> => {
-  return apiClient<{ message: string }>(`/products/${id}`, {
+export const deleteProduct = async (id: string): Promise<IProduct> => {
+  const res = await apiClient<ApiResponse<IProduct>>(`/products/${id}`, {
     method: "DELETE",
   });
+  return res.data;
 };

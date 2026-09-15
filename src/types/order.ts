@@ -1,22 +1,20 @@
-export type DeliveryZoneId = "inside" | "outside";
-
-export interface OrderProduct {
-  productId: string | null;
+export interface IProduct {
+  productId: string;
   size: string;
 }
 
-export interface ShippingAddress {
+export interface IShippingAddress {
   firstName: string;
   lastName: string;
   address: string;
   city: string;
   phone: string;
-  alternativePhone: string;
-  email?: string;
+  alternativePhone?: string;
+  email: string;
   notes?: string;
 }
 
-export interface OrderPricing {
+export interface IPricing {
   quantity: number;
   subtotal: number;
   deliveryCharge: number;
@@ -26,30 +24,35 @@ export interface OrderPricing {
 
 export type OrderStatus =
   | "Pending"
-  | "Confirmed"
   | "Processing"
   | "Shipped"
   | "Delivered"
-  | "Cancelled";
-
-export type PaymentMethod = "bKash / Nagad / Rocket (advance)";
+  | "Cancelled"
+  | "Returned";
 
 export interface IOrder {
-  product: OrderProduct;
-  shipping_address: ShippingAddress;
-  deliveryZone: DeliveryZoneId;
-  extras: string[]; // gift extra ids, e.g. ["gift-packaging", "rose-bouquet"]
+  _id: string;
+  product: IProduct;
+  shipping_address: IShippingAddress;
+  deliveryZone: "inside" | "outside";
+  extras: string[];
   transactionId: string;
-  pricing: OrderPricing;
-  paymentMethod: PaymentMethod;
+  pricing: IPricing;
+  paymentMethod: string;
   orderStatus: OrderStatus;
+  orderId: string;
+  createdAt: string;
+  updatedAt: string;
+  __v?: number;
 }
 
-
-// types/order.ts এ যোগ করুন
-
-export interface CreateOrderResponse {
-  insertedId?: string;
-  acknowledged?: boolean;
-  message?: string;
+// Generic API wrapper — backend always returns this shape
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
 }
+
+export type CreateOrderResponse = ApiResponse<IOrder>;
+export type GetOrdersResponse = ApiResponse<IOrder[]>;
+export type UpdateOrderStatusResponse = ApiResponse<IOrder>;

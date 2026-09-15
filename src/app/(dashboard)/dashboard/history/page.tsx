@@ -16,7 +16,7 @@ import {
   StatusBadge,
 } from "../orders/components/orderTable";
 import { OrderStatus } from "@/types/order";
-import { getAllOrders } from "@/services/order";
+import { getOrderHistory } from "@/services/order";
 
 const TABS: (OrderStatus | "All")[] = ["All", ...ORDER_STATUSES];
 
@@ -95,7 +95,7 @@ const OrderHistoryPage = () => {
     const load = async () => {
       try {
         setLoading(true);
-        const data = await getAllOrders();
+        const data = await getOrderHistory();
         setOrders((data as AdminOrder[]) ?? []);
         setError(null);
       } catch (err: any) {
