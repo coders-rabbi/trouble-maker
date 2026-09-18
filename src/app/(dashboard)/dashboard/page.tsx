@@ -226,8 +226,8 @@ const DashboardOverviewPage = () => {
         const product = products.find((p) => p._id === productId);
         return {
           productId,
-          name: product?.name ?? "Unknown product",
-          image: product?.images?.[0],
+          name: product?.basicInfo?.productName ?? "Unknown product",
+          image: product?.media?.thumbnailImage,
           unitsSold,
         };
       })
