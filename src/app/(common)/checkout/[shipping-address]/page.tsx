@@ -7,9 +7,9 @@ import { FaShieldAlt, FaWhatsapp } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import Inventory from "@/components/ui/Inventory";
 import { IOrder } from "@/types/order";
-import { createOrder } from "@/services/order/order";
 import Swal from "sweetalert2";
 import Link from "next/link";
+import { createOrder } from "@/services/order";
 
 /* ---------- static config ---------- */
 
@@ -62,17 +62,23 @@ const Shipping_Address = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const productId = searchParams.get("productId");
-  const price = Number(searchParams.get("price") || 0);
-  const count = Number(searchParams.get("count") || 1);
-  const size = searchParams.get("size") || "";
+  const price = Number(searchParams.get("price"));
+  const count = Number(searchParams.get("count"));
+  const size = searchParams.get("size");
+  const color = searchParams.get("color");
+  const productName = searchParams.get("name");
 
-  const product = { productId, size };
+  const product = {
+    productId: searchParams.get("productId") ?? "",
+    size: searchParams.get("size") ?? "",
+    color: searchParams.get("color") ?? "",
+  };
 
   const [deliveryZone, setDeliveryZone] = useState<DeliveryZoneId>("outside");
   const [selectedExtras, setSelectedExtras] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
   const [transactionId, setTransactionId] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const deliveryCharge =
     DELIVERY_ZONES.find((z) => z.id === deliveryZone)?.charge ?? 0;
@@ -107,16 +113,19 @@ const Shipping_Address = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    const form = e.currentTarget as any;
+    const form = e.currentTarget as HTMLFormElement;
     const formData = {
-      firstName: form.firstName.value,
-      lastName: form.lastName.value,
-      address: form.address.value,
-      city: form.city.value,
-      phone: form.phone.value,
-      alternativePhone: form.alternativePhone.value,
-      email: form.email?.value,
-      notes: form.notes.value,
+      firstName: (form.elements.namedItem("firstName") as HTMLInputElement)
+        .value,
+      lastName: (form.elements.namedItem("lastName") as HTMLInputElement).value,
+      address: (form.elements.namedItem("address") as HTMLInputElement).value,
+      city: (form.elements.namedItem("city") as HTMLInputElement).value,
+      phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
+      alternativePhone: (
+        form.elements.namedItem("alternativePhone") as HTMLInputElement
+      ).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement)?.value,
+      notes: (form.elements.namedItem("notes") as HTMLInputElement).value,
     };
 
     const orderData: IOrder = {
@@ -135,13 +144,35 @@ const Shipping_Address = () => {
       paymentMethod: "bKash / Nagad / Rocket (advance)",
       orderStatus: "Pending",
     };
-    console.log(orderData);
+
+    setSubmitting(true);
+
     try {
       const response = await createOrder(orderData);
-      if (response?.insertedId) {
-        Swal.fire({
+
+      if (response?.success) {
+        await Swal.fire({
           icon: "success",
           title: "আপনার অর্ডার সফল হয়েছে",
+          text: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।",
+          timer: 2500,
+          showConfirmButton: false,
+        });
+
+        // ---- ফর্ম ও স্টেট রিসেট ----
+        form.reset();
+        setDeliveryZone("outside");
+        setSelectedExtras(new Set());
+        setTransactionId("");
+        setCopied(false);
+
+        // ---- shop পেজে রিডাইরেক্ট ----
+        router.push("/shop");
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "দুঃখিত!",
+          text: "অর্ডার করতে সমস্যা হয়েছে, আবার চেষ্টা করুন।",
         });
       }
     } catch (error: any) {
@@ -151,6 +182,8 @@ const Shipping_Address = () => {
         title: "দুঃখিত!",
         text: error?.message || "অর্ডার করতে সমস্যা হয়েছে, আবার চেষ্টা করুন।",
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -459,9 +492,9 @@ const Shipping_Address = () => {
           <div className="w-full ">
             <div className="sticky top-8">
               <Inventory
-                name="Turkish Horse"
+                name={productName || ""}
                 size={size || "M"}
-                color="#000000"
+                color={color || "black"}
                 price={price}
                 count={count}
                 deliveryCharge={deliveryCharge}
@@ -475,10 +508,11 @@ const Shipping_Address = () => {
           <div className="w-full">
             <button
               type="submit"
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-black px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#2C2D2D]"
+              disabled={submitting}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-black px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#2C2D2D] disabled:opacity-50"
             >
               <FaShieldAlt size={13} />
-              Confirm Order
+              {submitting ? "Processing..." : "Confirm Order"}
             </button>
 
             <Link

@@ -41,7 +41,7 @@ const Inventory = ({
         <div>
           <p className="font-semibold">{name}</p>
           <p className="text-xs text-gray-400">
-            Size: {size} · Qty: {count}
+            Size: {size} · Qty: {count} . Color: {color}
           </p>
         </div>
         <p className="font-bold">৳{subtotal}</p>

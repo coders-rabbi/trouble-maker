@@ -1,8 +1,13 @@
 import ProductsCard from "@/components/ui/productsCard";
+import { getAllProducts } from "@/services/products";
+import { IProduct } from "@/types/products";
 import React from "react";
 import { FaGripfire } from "react-icons/fa";
 
-const TrandingProducts = () => {
+interface ProductsProps {
+  products: IProduct[];
+}
+const TrandingProducts = async ({ products }: ProductsProps) => {
   return (
     <div className="mt-10">
       <p className="mb-2 uppercase font-semibold flex items-center gap-1 text-xs">
@@ -13,8 +18,8 @@ const TrandingProducts = () => {
         Trending now
       </h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 mt-5">
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <ProductsCard key={item}/>
+        {products.map((item) => (
+          <ProductsCard key={item._id} product={item} />
         ))}
       </div>
     </div>

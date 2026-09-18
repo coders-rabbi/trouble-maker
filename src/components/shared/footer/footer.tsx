@@ -26,16 +26,16 @@ const Footer = () => {
             <Link href="">Support</Link>
           </li>
           <li>
-            <Link href="">Privacy</Link>
+            <Link href="/policy">Privacy</Link>
           </li>
           <li>
-            <Link href="">Terms</Link>
+            <Link href="/policy">Terms</Link>
           </li>
           <li>
-            <Link href="">Return & Exchange</Link>
+            <Link href="/policy">Return & Exchange</Link>
           </li>
           <li>
-            <Link href="">Contact</Link>
+            <Link href="/contact">Contact</Link>
           </li>
         </ul>
       </div>

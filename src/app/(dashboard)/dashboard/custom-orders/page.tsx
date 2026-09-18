@@ -12,10 +12,10 @@ import {
 import { getAllOrders, updateOrderStatus } from "@/services/order";
 import OrdersTable, {
   ORDER_STATUSES,
-  OrderStatus,
   AdminOrder,
   StatusBadge,
 } from "../orders/components/orderTable";
+import { OrderStatus } from "@/types/order";
 
 const TABS: (OrderStatus | "All")[] = ["All", ...ORDER_STATUSES];
 

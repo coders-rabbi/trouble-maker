@@ -10,10 +10,6 @@ import Swal from "sweetalert2";
 import { IProduct } from "@/types/products";
 // import { deleteProduct } from "@/services/products";
 
-interface ProductsTableProps {
-  products: IProduct[];
-}
-
 const inputClasses =
   "w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-gray-400 focus:border-black";
 
@@ -29,6 +25,10 @@ const StatusBadge = ({ inStock }: { inStock: boolean }) => (
   </span>
 );
 
+interface ProductsTableProps {
+  products: IProduct[];
+}
+
 const ProductsTable = ({ products }: ProductsTableProps) => {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -40,8 +40,8 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
     if (!query) return localProducts;
     return localProducts.filter(
       (p) =>
-        p.name?.toLowerCase().includes(query) ||
-        p.category?.toLowerCase().includes(query) ||
+        p?.basicInfo?.productName?.toLowerCase().includes(query) ||
+        p?.organization?.category?.toLowerCase().includes(query) ||
         p._id?.toLowerCase().includes(query),
     );
   }, [localProducts, search]);
@@ -49,7 +49,7 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
   const handleDelete = async (product: IProduct) => {
     const result = await Swal.fire({
       icon: "warning",
-      title: `Delete "${product.name}"?`,
+      title: `Delete "${product?.basicInfo?.productName}"?`,
       text: "This action cannot be undone.",
       showCancelButton: true,
       confirmButtonText: "Delete",
@@ -61,7 +61,7 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
 
     try {
       setDeletingId(product._id as string);
-    //   await deleteProduct(product._id as string);
+      //   await deleteProduct(product._id as string);
       setLocalProducts((prev) => prev.filter((p) => p._id !== product._id));
       Swal.fire({
         icon: "success",
@@ -79,6 +79,9 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
       setDeletingId(null);
     }
   };
+
+  console.log(products)
+
 
   return (
     <div>
@@ -136,12 +139,15 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-gray-100">
-                        {product.images?.[0] ? (
+                        {product?.media?.thumbnailImage ? (
                           <Image
-                            src={product.images[0]}
-                            alt={product.name}
+                            src={product.media.thumbnailImage}
+                            alt={
+                              product?.basicInfo?.productName || "Product image"
+                            }
                             fill
                             className="object-cover"
+                            unoptimized
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-400">
@@ -149,18 +155,28 @@ const ProductsTable = ({ products }: ProductsTableProps) => {
                           </div>
                         )}
                       </div>
-                      <p className="font-semibold">{product.name}</p>
+                      <p className="font-semibold">
+                        {product?.basicInfo?.productName}
+                      </p>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    {product.category || "—"}
+                    {product?.organization?.category || "—"}
                   </td>
-                  <td className="px-4 py-3 font-bold">৳{product.price ?? 0}</td>
+                  <td className="px-4 py-3 font-bold">
+                    ৳{product?.pricingInventory?.price ?? 0}
+                  </td>
                   <td className="px-4 py-3 text-gray-500">
-                    {product.sizes?.length ? product.sizes.join(", ") : "—"}
+                    {product?.variation?.size.length
+                      ? product?.variation?.size?.join(", ")
+                      : "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <StatusBadge inStock={(product.stock ?? 0) > 0} />
+                    <StatusBadge
+                      inStock={
+                        (product?.pricingInventory?.stockKeepingUnit ?? 0) > 0
+                      }
+                    />
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">

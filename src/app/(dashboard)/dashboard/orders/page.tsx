@@ -10,11 +10,11 @@ import {
 } from "react-icons/fa6";
 import OrdersTable, {
   ORDER_STATUSES,
-  OrderStatus,
   AdminOrder,
   StatusBadge,
 } from "./components/orderTable";
 import { getAllOrders, updateOrderStatus } from "@/services/order";
+import { OrderStatus } from "@/types/order";
 
 const TABS: (OrderStatus | "All")[] = ["All", ...ORDER_STATUSES];
 
@@ -43,8 +43,6 @@ const OrdersPage = () => {
     };
     load();
   }, []);
-
-  console.log("Rabbi:", orders);
 
   const counts = useMemo(() => {
     const base: Record<string, number> = { All: orders.length };
@@ -89,9 +87,9 @@ const OrdersPage = () => {
     }
 
     try {
-      await updateOrderStatus(order._id, status);
+      const res = await updateOrderStatus(order._id, status);
+      
     } catch (err) {
-      // revert on failure
       setOrders(prevOrders);
       if (selectedOrder?._id === order._id) setSelectedOrder(order);
     } finally {
@@ -211,7 +209,8 @@ const OrdersPage = () => {
               </p>
               <p className="text-sm">
                 Size: {selectedOrder.product?.size || "—"} · Qty:{" "}
-                {selectedOrder.pricing?.quantity ?? 1}
+                {selectedOrder.pricing?.quantity ?? 1} . Color:{" "}
+                {selectedOrder?.product?.color}
               </p>
               {selectedOrder.extras?.length > 0 && (
                 <p className="mt-1 text-xs text-gray-500">

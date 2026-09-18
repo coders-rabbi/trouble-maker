@@ -1,15 +1,16 @@
 
-import { ApiResponse, IProduct } from "@/types/order";
+import { IProduct, IProductPayload } from "@/types/products";
 import { apiClient } from "../apiClient";
+import { ApiResponse } from "@/types/order";
 
-// export const createProduct = async (
-//   productData: IProduct,
-// ): Promise<CreateProductResponse> => {
-//   return apiClient<CreateProductResponse>("/products/create-product", {
-//     method: "POST",
-//     body: JSON.stringify(productData),
-//   });
-// };
+export const createProduct = async (
+  productData: IProductPayload,
+): Promise<IProduct> => {
+  return apiClient<IProduct>("/products/create-product", {
+    method: "POST",
+    body: JSON.stringify(productData),
+  });
+};
 
 export const getAllProducts = async (): Promise<IProduct[]> => {
   const res = await apiClient<ApiResponse<IProduct[]>>("/products", {

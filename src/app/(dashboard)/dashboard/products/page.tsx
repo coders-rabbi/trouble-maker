@@ -1,12 +1,10 @@
-
-import { IProduct } from "@/types/products";
 import Link from "next/link";
 import { FaPlus } from "react-icons/fa";
 import ProductsTable from "./components/productTable";
 import { getAllProducts } from "@/services/products";
 
 const ProductsPage = async () => {
-  const products: IProduct[] = await getAllProducts();
+  const products = await getAllProducts();
 
   return (
     <div>

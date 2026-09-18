@@ -1,6 +1,7 @@
-export interface IProduct {
+interface IProduct {
   productId: string;
   size: string;
+  color: string;
 }
 
 export interface IShippingAddress {
@@ -31,7 +32,7 @@ export type OrderStatus =
   | "Returned";
 
 export interface IOrder {
-  _id: string;
+  _id?: string;
   product: IProduct;
   shipping_address: IShippingAddress;
   deliveryZone: "inside" | "outside";
@@ -40,9 +41,9 @@ export interface IOrder {
   pricing: IPricing;
   paymentMethod: string;
   orderStatus: OrderStatus;
-  orderId: string;
-  createdAt: string;
-  updatedAt: string;
+  // orderId?: string;
+  createdAt?: string;
+  updatedAt?: string;
   __v?: number;
 }
 

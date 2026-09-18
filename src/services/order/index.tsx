@@ -4,7 +4,7 @@ import { apiClient } from "../apiClient";
 export const createOrder = async (
   orderData: IOrder,
 ): Promise<CreateOrderResponse> => {
-  return apiClient<CreateOrderResponse>("/orders", {
+  return apiClient<CreateOrderResponse>("/orders/create-order", {
     method: "POST",
     body: JSON.stringify(orderData),
   });
@@ -28,7 +28,7 @@ export const updateOrderStatus = async (
   id: string,
   status: string,
 ): Promise<IOrder> => {
-  const res = await apiClient<ApiResponse<IOrder>>(`/orders/${id}`, {
+  const res = await apiClient<ApiResponse<IOrder>>(`/orders/${id}/order-status`, {
     method: "PATCH",
     body: JSON.stringify({ orderStatus: status }),
   });
